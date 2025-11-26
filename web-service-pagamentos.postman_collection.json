@@ -1,0 +1,136 @@
+{
+  "info": {
+    "name": "Web Service Pagamentos - Tests",
+    "_postman_id": "b4d5e6a0-0000-4000-9000-collection",
+    "description": "Collection para testar a API de pagamentos (listar, filtro hoje, detalhe e 404). Use a variavel baseUrl.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "sampleId", "value": "1" }
+  ],
+  "item": [
+    {
+      "name": "Listar pagamentos",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+              "const data = pm.response.json();",
+              "pm.test(\"Resposta é array\", () => pm.expect(data).to.be.an('array'));",
+              "pm.test(\"Array não vazio\", () => pm.expect(data.length).to.be.above(0));",
+              "data.forEach(p => {",
+              "  pm.expect(p).to.have.keys(['codigo','descricao','valor','dataVencimento','pago']);",
+              "  pm.expect(p.codigo).to.be.a('number');",
+              "  pm.expect(p.descricao).to.be.a('string');",
+              "  pm.expect(p.valor).to.be.a('number');",
+              "  pm.expect(p.pago).to.be.a('boolean');",
+              "  pm.expect(p.dataVencimento).to.match(/^\\d{2}\\/\\d{2}\\/\\d{4}$/);",
+              "});",
+              "pm.collectionVariables.set('sampleId', data[0].codigo);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/pagamentos",
+          "host": ["{{baseUrl}}"],
+          "path": ["pagamentos"]
+        }
+      }
+    },
+    {
+      "name": "Pagamentos vencendo hoje",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "pm.collectionVariables.set('todayFormatted', moment().format('DD/MM/YYYY'));"
+            ],
+            "type": "text/javascript"
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+              "const data = pm.response.json();",
+              "pm.test(\"Resposta é array\", () => pm.expect(data).to.be.an('array'));",
+              "const today = pm.collectionVariables.get('todayFormatted');",
+              "data.forEach(p => {",
+              "  pm.expect(p.dataVencimento).to.eql(today);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/pagamentos/hoje",
+          "host": ["{{baseUrl}}"],
+          "path": ["pagamentos", "hoje"]
+        }
+      }
+    },
+    {
+      "name": "Buscar pagamento por código (sampleId)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test(\"Retorna o sampleId\", () => pm.expect(body.codigo).to.eql(parseInt(pm.collectionVariables.get('sampleId'))));",
+              "pm.expect(body.dataVencimento).to.match(/^\\d{2}\\/\\d{2}\\/\\d{4}$/);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/pagamentos/{{sampleId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["pagamentos", "{{sampleId}}"]
+        }
+      }
+    },
+    {
+      "name": "Pagamento inexistente (404)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status 404\", () => pm.response.to.have.status(404));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/pagamentos/9999",
+          "host": ["{{baseUrl}}"],
+          "path": ["pagamentos", "9999"]
+        }
+      }
+    }
+  ]
+}
