@@ -52,7 +52,11 @@
           "listen": "prerequest",
           "script": {
             "exec": [
-              "pm.collectionVariables.set('todayFormatted', moment().format('DD/MM/YYYY'));"
+              "const now = new Date();",
+              "const dd = String(now.getDate()).padStart(2, '0');",
+              "const mm = String(now.getMonth() + 1).padStart(2, '0');",
+              "const yyyy = now.getFullYear();",
+              "pm.collectionVariables.set('todayFormatted', `${dd}/${mm}/${yyyy}`);"
             ],
             "type": "text/javascript"
           }
