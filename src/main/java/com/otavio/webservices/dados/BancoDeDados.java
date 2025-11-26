@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+// Simula um banco em memoria com dados estaticos
 public final class BancoDeDados {
 
     private static final List<Pagamento> PAGAMENTOS = new ArrayList<>();
@@ -22,10 +23,12 @@ public final class BancoDeDados {
     private BancoDeDados() {
     }
 
+    // Retorna lista imutavel de todos os pagamentos
     public static List<Pagamento> listarTodos() {
         return Collections.unmodifiableList(PAGAMENTOS);
     }
 
+    // Busca pagamento pelo codigo (ou retorna null se nao achar)
     public static Pagamento buscarPorCodigo(Integer codigo) {
         return PAGAMENTOS.stream()
                 .filter(p -> p.getCodigo().equals(codigo))
@@ -33,6 +36,7 @@ public final class BancoDeDados {
                 .orElse(null);
     }
 
+    // Filtra apenas pagamentos com vencimento na data atual
     public static List<Pagamento> vencendoHoje() {
         LocalDate hoje = LocalDate.now();
         return PAGAMENTOS.stream()

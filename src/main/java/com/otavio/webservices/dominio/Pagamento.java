@@ -9,7 +9,8 @@ public class Pagamento {
     private String descricao;
     private Double valor;
 
-    @JsonFormat(pattern = "dd/MM/yyyy")
+// Controla a serializacao de data em dd/MM/yyyy no JSON
+@JsonFormat(pattern = "dd/MM/yyyy")
     private LocalDate dataVencimento;
     private Boolean pago;
 
